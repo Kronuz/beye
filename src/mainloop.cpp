@@ -102,8 +102,8 @@ void BeyeContext::main_loop()
 	    case KE_F(1) : About();  continue;
 	    default : continue;
 	    case KE_SHIFT_F(1): active_mode().help(); break;
-	    case KE_F(10):
-	    case KE_ESCAPE : return;
+	    case KE_F(10): return;
+	    // case KE_ESCAPE : return;
 	    case KE_ENTER:
 		quick_select_mode();
 		drawPrompt();
