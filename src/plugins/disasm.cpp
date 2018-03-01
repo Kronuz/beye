@@ -107,7 +107,6 @@ DisMode::DisMode(BeyeContext& bc,const Bin_Format& b,binary_stream& h,TWindow& _
     list.push_back(&ppc_disassembler_info);
     CurrStrLenBuff = new unsigned char [main_wnd.height()];
     PrevStrLenAddr = new unsigned long [main_wnd.height()];
-    dis_comments   = new char [Comm_Size];
     second_handle = main_handle.dup();
 
     def_platform = DISASM_DATA;
@@ -751,7 +750,7 @@ void DisMode::save_ini(Ini_Profile& ini)
 
 DisasmRet DisMode::disassembler(__filesize_t ulShift,MBuffer buffer,unsigned flg)
 {
-    dis_comments[0] = 0;
+    dis_comments.clear();
     dis_severity = DisMode::CommSev_None;
     return activeDisasm->disassembler(ulShift,buffer,flg);
 }
