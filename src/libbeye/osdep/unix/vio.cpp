@@ -82,10 +82,10 @@ static char *vtmp;
 static int out_fd;
 static int _color[8] = {0,4,2,6,1,5,3,7};
 
-static unsigned char frames_vt100[0x30] =
+static unsigned char frames_vt100[0x31] =
 "aaaxuuukkuxkjjjkmvwtqnttmlvwtqnvvwwmmllnnjlaaaaa";
 
-#define twrite(x)	write(out_fd,(x),strlen(x))
+#define twrite(x)	write(out_fd,(x),strlen((const char*)x))
 
 /**
     convert vga attrubute to ansi escape sequence
@@ -111,7 +111,7 @@ static char *__FASTCALL__ _2ansi(unsigned char attr)
     return vtmp;
 }
 
-static unsigned char frames_dumb[0x30] =
+static unsigned char frames_dumb[0x31] =
 ": %|{+++++|+++++`++}-++++++++-+++++++++++++#%[]~";
 
 /*
@@ -188,7 +188,7 @@ void __FASTCALL__ __vioWriteBuff(tAbsCoord x, tAbsCoord y, const tvioBuff *buff,
 #define	LEN(x) (x << 4)
     unsigned char mode = 0, old_mode = -1;
     unsigned char cache_pb[LEN(VMAX_X)];
-    unsigned char *dpb,*pb = len > VMAX_X ? new char [LEN(len)] : cache_pb;
+    unsigned char *dpb,*pb = len > VMAX_X ? new unsigned char [LEN(len)] : cache_pb;
     unsigned slen;
 
     dpb=pb;
@@ -222,10 +222,10 @@ void __FASTCALL__ __vioWriteBuff(tAbsCoord x, tAbsCoord y, const tvioBuff *buff,
 
 	if (output_7) c &= 0x7f;
 	else {
-	    char *map = mode ? "\016" : "\017";
+	    const char *map = mode ? "\016" : "\017";
 	    if (old_mode != mode)
 	    {
-		strcpy(dpb,map);
+		strcpy((char*)dpb,map);
 		dpb += strlen(map);
 	    }
 	    old_mode = mode;
@@ -236,16 +236,16 @@ void __FASTCALL__ __vioWriteBuff(tAbsCoord x, tAbsCoord y, const tvioBuff *buff,
 	if ((i && ca != buff->attrs[i - 1]) || i == len || !i)
 	{
 	    unsigned char *d;
-	    d = _2ansi(ca);
-	    strcpy(dpb, d);
-	    dpb += strlen(d);
+	    d = (unsigned char*)_2ansi(ca);
+	    strcpy((char*)dpb, (const char*)d);
+	    dpb += strlen((const char*)d);
 	}
 	if(!is_unicode) {
 	    *dpb=c; dpb++;
 	}
 	else {
 	    unsigned len=1;
-	    char *destb=nls_recode2screen_cp(nls_handle,&c,&len);
+	    char *destb=nls_recode2screen_cp(nls_handle,(const char*)&c,&len);
 	    memcpy(dpb,destb,len);
 	    delete destb;
 	    dpb+=len;
@@ -253,7 +253,7 @@ void __FASTCALL__ __vioWriteBuff(tAbsCoord x, tAbsCoord y, const tvioBuff *buff,
     }
     *dpb=0;
     dpb=pb;
-    slen=strlen(dpb);
+    slen=strlen((const char*)dpb);
     while(slen)
     {
 	unsigned stored=twrite(dpb);
